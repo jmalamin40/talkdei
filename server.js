@@ -1,101 +1,77 @@
+
 const express = require('express');
 const bodyParser = require('body-parser');
 const sql = require('mssql');
+const Joi = require('joi');
 
-const mssql = require('mssql');
-
-const createUsersTable = async () => {
-  const connection = await mssql.connect({
-    server: 'talkdeitest.database.windows.net',
-  database: 'talkdeitest',
-  user: 'talkdeiuser',
-  password: '6;MU7`ND6a'
-
-  });
-
-  try {
-    await connection.query(`
-      CREATE TABLE users (
-        name NVARCHAR(255) NOT NULL,
-        email NVARCHAR(255) PRIMARY KEY,
-        jobTitle NVARCHAR(255),
-        companyName NVARCHAR(255),
-        companySize NVARCHAR(255),
-        industry NVARCHAR(255),
-        location NVARCHAR(255),
-        betaTesting BIT,
-        diversitySupplier BIT
-      );
-    `);
-    console.log('Users table created successfully');
-  } catch (err) {
-    console.error(err);
-  } finally {
-    await connection.close();
-  }
-};
-createUsersTable();
-
-// Connect to SQL Server database
-const connection = new sql.ConnectionPool({
-    server: 'talkdeitest.database.windows.net',
-    database: 'talkdeitest',
-    user: 'talkdeiuser',
-    password: '6;MU7`ND6a'
-  
-});
-
-// Create a table for user data in SQL Server database
-connection.connect().then(() => {
-  connection.query('CREATE TABLE IF NOT EXISTS users (name NVARCHAR(255), email NVARCHAR(255), jobTitle NVARCHAR(255), companyName NVARCHAR(255), companySize NVARCHAR(255), industry NVARCHAR(255), location NVARCHAR(255), betaTesting BIT, diversitySupplier BIT)', (err) => {
-    if (err) {
-      console.error(err);
-    } else {
-      console.log('Table "users" created successfully');
-    }
-  });
-});
-
-// Create an Express app
 const app = express();
+const port = 3000;
 
-// Use body parser middleware to parse JSON data in request body
+// MSSQL Configuration
+const config = {
+  user: 'talkdeiuser',
+  password: '6;MU7`ND6a',
+  server: 'talkdeitest.database.windows.net',
+  database: 'talkdeitest',
+  options: {
+    encrypt: true, // Use this if you're on Windows Azure
+  },
+};
+
 app.use(bodyParser.json());
 
-// Define a signup API endpoint
-app.post('/api/signup', async (req, res) => {
-  const userData = req.body;
-
-  // Validate user data
-  if (!userData.name || !userData.email) {
-    return res.status(400).send('Missing required fields: name and email');
-  }
-
-  // Check if user already exists with the provided email
-  const existingUser = await connection.query('SELECT * FROM users WHERE email = @email', { email: userData.email });
-  if (existingUser[0].length > 0) {
-    return res.status(409).send('User with this email already exists');
-  }
-
-  // Insert new user data into the SQL Server database
-  const newUser = await connection.query('INSERT INTO users (name, email, jobTitle, companyName, companySize, industry, location, betaTesting, diversitySupplier) VALUES (@name, @email, @jobTitle, @companyName, @companySize, @industry, @location, @betaTesting, @diversitySupplier)', {
-    name: userData.name,
-    email: userData.email,
-    jobTitle: userData.jobTitle,
-    companyName: userData.companyName,
-    companySize: userData.companySize,
-    industry: userData.industry,
-    location: userData.location,
-    betaTesting: userData.betaTesting,
-    diversitySupplier: userData.diversitySupplier
-  });
-
-  // Send a success response
-  res.status(201).send('User successfully registered');
+// Define Joi schema for data validation
+const dataSchema = Joi.object({
+  name: Joi.string().required(),
+  email: Joi.string().email().required(),
+  jobTitle: Joi.string().required(),
+  companyName: Joi.string().required(),
+  companySize: Joi.string().required(),
+  industry: Joi.string().required(),
+  location: Joi.string().required(),
+  betaTesting: Joi.string().required(),
+  diversitySupplier: Joi.string().required(),
 });
 
-// Start the server
-app.listen(3000, () => console.log('Server started on port 3000'));
+app.post('/api/data', async (req, res) => {
+  try {
+    // Validate the incoming data
+    const { error, value } = dataSchema.validate(req.body);
+    if (error) {
+      return res.status(400).json({ message: error.details[0].message });
+    }
 
+    // Connect to the MSSQL database
+    await sql.connect(config);
 
+    // Insert data into the database
+    const result = await new sql.Request().input('name', sql.NVarChar, value.name)
+      .input('email', sql.NVarChar, value.email)
+      .input('jobTitle', sql.NVarChar, value.jobTitle)
+      .input('companyName', sql.NVarChar, value.companyName)
+      .input('companySize', sql.NVarChar, value.companySize)
+      .input('industry', sql.NVarChar, value.industry)
+      .input('location', sql.NVarChar, value.location)
+      .input('betaTesting', sql.NVarChar, value.betaTesting)
+      .input('diversitySupplier', sql.NVarChar, value.diversitySupplier)
+      .query(`
+        INSERT INTO YourTableName (name, email, jobTitle, companyName, companySize, industry, location, betaTesting, diversitySupplier)
+        VALUES (@name, @email, @jobTitle, @companyName, @companySize, @industry, @location, @betaTesting, @diversitySupplier)
+      `);
+
+    // Close the MSSQL connection
+    await sql.close();
+
+    console.log('Data inserted successfully:', value);
+
+    res.json({ message: 'Data received and inserted successfully', data: value });
+  } catch (err) {
+    console.error('Error:', err.message);
+    res.status(500).json({ message: 'Internal Server Error' });
+  }
+});
+
+app.listen(port, () => {
+  console.log(`Server is running on port ${port}`);
+});
 
