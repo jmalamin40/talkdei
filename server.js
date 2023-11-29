@@ -1,18 +1,25 @@
 const express = require('express');
 const bodyParser = require('body-parser');
-const mysql = require('mysql2');
+const sql = require('mssql');
 
-// Connect to MySQL database
-const connection = mysql.createConnection({
-  host: 'talkdeitest.database.windows.net',
-  port:'1433',
+// Connect to SQL Server database
+const connection = new sql.ConnectionPool({
+  server: 'talkdeitest.database.windows.net',
+  database: 'talkdeitest',
   user: 'deploy_db_group',
-  password: '6;MU7`ND6a',
-  database: 'talkdei'
+  password: '6;MU7`ND6a'
 });
 
-// Define a table for user data in MySQL database
-connection.query('CREATE TABLE IF NOT EXISTS users (name VARCHAR(255), email VARCHAR(255), jobTitle VARCHAR(255), companyName VARCHAR(255), companySize VARCHAR(255), industry VARCHAR(255), location VARCHAR(255), betaTesting BOOLEAN, diversitySupplier BOOLEAN)');
+// Create a table for user data in SQL Server database
+connection.connect().then(() => {
+  connection.query('CREATE TABLE IF NOT EXISTS users (name NVARCHAR(255), email NVARCHAR(255), jobTitle NVARCHAR(255), companyName NVARCHAR(255), companySize NVARCHAR(255), industry NVARCHAR(255), location NVARCHAR(255), betaTesting BIT, diversitySupplier BIT)', (err) => {
+    if (err) {
+      console.error(err);
+    } else {
+      console.log('Table "users" created successfully');
+    }
+  });
+});
 
 // Create an Express app
 const app = express();
@@ -30,13 +37,23 @@ app.post('/api/signup', async (req, res) => {
   }
 
   // Check if user already exists with the provided email
-  const existingUser = await connection.query('SELECT * FROM users WHERE email = ?', [userData.email]);
-  if (existingUser.length > 0) {
+  const existingUser = await connection.query('SELECT * FROM users WHERE email = @email', { email: userData.email });
+  if (existingUser[0].length > 0) {
     return res.status(409).send('User with this email already exists');
   }
 
-  // Insert new user data into the MySQL database
-  const newUser = await connection.query('INSERT INTO users (name, email, jobTitle, companyName, companySize, industry, location, betaTesting, diversitySupplier) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)', [userData.name, userData.email, userData.jobTitle, userData.companyName, userData.companySize, userData.industry, userData.location, userData.betaTesting, userData.diversitySupplier]);
+  // Insert new user data into the SQL Server database
+  const newUser = await connection.query('INSERT INTO users (name, email, jobTitle, companyName, companySize, industry, location, betaTesting, diversitySupplier) VALUES (@name, @email, @jobTitle, @companyName, @companySize, @industry, @location, @betaTesting, @diversitySupplier)', {
+    name: userData.name,
+    email: userData.email,
+    jobTitle: userData.jobTitle,
+    companyName: userData.companyName,
+    companySize: userData.companySize,
+    industry: userData.industry,
+    location: userData.location,
+    betaTesting: userData.betaTesting,
+    diversitySupplier: userData.diversitySupplier
+  });
 
   // Send a success response
   res.status(201).send('User successfully registered');
@@ -44,3 +61,6 @@ app.post('/api/signup', async (req, res) => {
 
 // Start the server
 app.listen(3000, () => console.log('Server started on port 3000'));
+
+
+
