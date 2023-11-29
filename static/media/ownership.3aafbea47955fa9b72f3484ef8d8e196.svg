@@ -1,0 +1,13 @@
+<svg width="234" height="234" viewBox="0 0 234 234" fill="none" xmlns="http://www.w3.org/2000/svg">
+<rect width="234" height="234" rx="16" fill="#F5F5F5"/>
+<path d="M70 140.969V146H140V140.969C140 132.365 135.844 126.677 127.531 123.906C119.219 121.135 111.708 119.75 105 119.75C98.2917 119.75 90.7812 121.135 82.4687 123.906C74.1562 126.677 70 132.365 70 140.969Z" fill="#0E8080"/>
+<path d="M92.6362 105.855C96.0662 109.285 100.188 111 105 111C109.807 111.006 113.925 109.294 117.355 105.864C120.785 102.434 122.5 98.3125 122.5 93.5C122.506 88.6933 120.794 84.575 117.364 81.145C113.934 77.715 109.812 76 105 76C100.193 75.9942 96.075 77.7063 92.645 81.1363C89.215 84.5663 87.5 88.6875 87.5 93.5C87.4942 98.3067 89.2062 102.425 92.6362 105.855Z" fill="#0E8080"/>
+<mask id="mask0_770_933" style="mask-type:luminance" maskUnits="userSpaceOnUse" x="121" y="106" width="38" height="40">
+<path d="M127 108V144" stroke="white" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M127 111H141L148 114H155C155.53 114 156.039 114.211 156.414 114.586C156.789 114.961 157 115.47 157 116V133C157 133.53 156.789 134.039 156.414 134.414C156.039 134.789 155.53 135 155 135H148L141 132H127V111Z" fill="white" stroke="white" stroke-width="4" stroke-linejoin="round"/>
+<path d="M123 144H131" stroke="white" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+</mask>
+<g mask="url(#mask0_770_933)">
+<path d="M116 102H164V150H116V102Z" fill="#CC9866"/>
+</g>
+</svg>
