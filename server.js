@@ -2,6 +2,7 @@
 const express = require('express');
 const bodyParser = require('body-parser');
 const sql = require('mssql');
+const cors = require('cors');
 const Joi = require('joi');
 
 const app = express();
@@ -19,6 +20,7 @@ const config = {
 };
 
 app.use(bodyParser.json());
+app.use(cors()); // Enable CORS for all routes
 
 // Define Joi schema for data validation
 const dataSchema = Joi.object({
