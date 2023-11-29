@@ -5,7 +5,7 @@ const sql = require('mssql');
 const Joi = require('joi');
 
 const app = express();
-const port = 3000;
+const port = 5000;
 
 // MSSQL Configuration
 const config = {
