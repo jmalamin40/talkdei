@@ -2,12 +2,47 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const sql = require('mssql');
 
+const mssql = require('mssql');
+
+const createUsersTable = async () => {
+  const connection = await mssql.connect({
+    server: 'talkdeitest.database.windows.net',
+  database: 'talkdeitest',
+  user: 'talkdeiuser',
+  password: '6;MU7`ND6a'
+
+  });
+
+  try {
+    await connection.query(`
+      CREATE TABLE users (
+        name NVARCHAR(255) NOT NULL,
+        email NVARCHAR(255) PRIMARY KEY,
+        jobTitle NVARCHAR(255),
+        companyName NVARCHAR(255),
+        companySize NVARCHAR(255),
+        industry NVARCHAR(255),
+        location NVARCHAR(255),
+        betaTesting BIT,
+        diversitySupplier BIT
+      );
+    `);
+    console.log('Users table created successfully');
+  } catch (err) {
+    console.error(err);
+  } finally {
+    await connection.close();
+  }
+};
+createUsersTable();
+
 // Connect to SQL Server database
 const connection = new sql.ConnectionPool({
-  server: 'talkdeitest.database.windows.net',
-  database: 'talkdeitest',
-  user: 'deploy_db_group',
-  password: '6;MU7`ND6a'
+    server: 'talkdeitest.database.windows.net',
+    database: 'talkdeitest',
+    user: 'talkdeiuser',
+    password: '6;MU7`ND6a'
+  
 });
 
 // Create a table for user data in SQL Server database
