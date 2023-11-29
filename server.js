@@ -57,7 +57,7 @@ app.post('/api/data', async (req, res) => {
       .input('betaTesting', sql.NVarChar, value.betaTesting)
       .input('diversitySupplier', sql.NVarChar, value.diversitySupplier)
       .query(`
-        INSERT INTO YourTableName (name, email, jobTitle, companyName, companySize, industry, location, betaTesting, diversitySupplier)
+        INSERT INTO users (name, email, jobTitle, companyName, companySize, industry, location, betaTesting, diversitySupplier)
         VALUES (@name, @email, @jobTitle, @companyName, @companySize, @industry, @location, @betaTesting, @diversitySupplier)
       `);
 
