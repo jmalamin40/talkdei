@@ -4,10 +4,11 @@ const mysql = require('mysql2');
 
 // Connect to MySQL database
 const connection = mysql.createConnection({
-  host: 'localhost',
-  user: 'root',
-  password: 'password',
-  database: 'signup-api'
+  host: 'talkdeitest.database.windows.net',
+  port:'1433',
+  user: 'deploy_db_group',
+  password: '6;MU7`ND6a',
+  database: 'talkdei'
 });
 
 // Define a table for user data in MySQL database
