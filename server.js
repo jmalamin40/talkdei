@@ -1,5 +1,6 @@
-
 const express = require('express');
+const https = require('https');
+const fs = require('fs');
 const bodyParser = require('body-parser');
 const sql = require('mssql');
 const cors = require('cors');
@@ -34,6 +35,14 @@ const dataSchema = Joi.object({
   betaTesting: Joi.string().required(),
   diversitySupplier: Joi.string().required(),
 });
+
+const options = {
+  key: fs.readFileSync('/etc/letsencrypt/live/talkdei.io/privkey.pem'),
+  cert: fs.readFileSync('/etc/letsencrypt/live/talkdei.io/fullchain.pem'),
+};
+
+// Create an HTTPS server
+const server = https.createServer(options, app);
 
 app.post('/api/data', async (req, res) => {
   try {
@@ -72,12 +81,8 @@ app.post('/api/data', async (req, res) => {
     res.status(500).json({ message: 'Internal Server Error' });
   }
 });
-app.use('/api/data', cors({
-  origin: ['https://talkdei.io/'], // Replace with your HTTPS domain
-  methods: ['GET', 'POST', 'PUT'], // Only allow GET requests for this route
-  headers: ['Origin', 'Content-Type'], // Only allow these request headers for this route
-}));
-app.listen(port, () => {
+
+server.listen(port, () => {
   console.log(`Server is running on port ${port}`);
 });
 
