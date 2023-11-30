@@ -72,7 +72,11 @@ app.post('/api/data', async (req, res) => {
     res.status(500).json({ message: 'Internal Server Error' });
   }
 });
-
+app.use('/api/data', cors({
+  origin: ['https://talkdei.io/'], // Replace with your HTTPS domain
+  methods: ['GET', 'POST', 'PUT'], // Only allow GET requests for this route
+  headers: ['Origin', 'Content-Type'], // Only allow these request headers for this route
+}));
 app.listen(port, () => {
   console.log(`Server is running on port ${port}`);
 });
